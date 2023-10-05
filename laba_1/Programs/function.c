@@ -66,12 +66,12 @@ void check_res(int fd_in, int fd_out){
 
 const char*  message_list[]={
     //Errors:
-    "Erorr!_Uncorrect input. Filename must begin with a capital letter!\n",
+    "Error!_Uncorrect input. Filename must begin with a capital letter!\n",
     "Call pipe was ended with error: ",
-    "Call fork was ended with erorr: ",
+    "Call fork was ended with error: ",
     "Trying to create 0-value string: ",
     //Normal status
     "Enter filename with file extension: ",
-    "Program was ended succsessfully!\n\n",
+    "Program was ended successfully!\n\n",
 
 };
