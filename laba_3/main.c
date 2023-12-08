@@ -2,10 +2,11 @@
 #include "function.h"
 #include "m_map.h"
 
-void check_res(){
-    
-}
+static int check=0;
 
+void wait_read(int sig){
+    check=1;
+}
 
 int main(){
     write(STDOUT_FILENO, "Enter filename with file extension: ", 37);
@@ -56,7 +57,8 @@ int main(){
             }
             // sleep(1);
             kill(pid, SIGUSR1);
-            signal(SIGUSR2, read_error_msg(pid));
+            signal(SIGUSR1, wait_read);
+            while(check!=1);
             int read_err_state=read_error_msg(pid);
             if(read_err_state ==0){
 
@@ -69,6 +71,7 @@ int main(){
                 perror("Something is going wrong: ");
                 exit(-1);           
             }
+            check=0;
         }
         write(STDOUT_FILENO, GREEN_COLOR, sizeof(GREEN_COLOR));
         write(STDOUT_FILENO, "\n", sizeof("\n"));

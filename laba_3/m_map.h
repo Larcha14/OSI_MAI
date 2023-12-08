@@ -21,21 +21,21 @@
 
 
 typedef struct message{
-    int pid;
-    int len;
+    // int pid;
+    // int len;
     char buff[CAPACITY];
 }message;
 
 typedef struct error_message{
-    int pid;
-    int status;
+    // int pid;
+    char status;
 }error_message;
 
 // void memory_mapping_creation(memory_map_struct *mm);
 // void memory_mapping_cleaning(memory_map_struct *mm);
 
 int write_msg(int pid);
-int read_msg(int pid, char *output, int s_len);
-int write_error_msg(int pid, int status);
+int read_msg(int pid, char **output, int s_len);
+int write_error_msg(int pid, char status);
 int read_error_msg(int pid);
-bool close_sh_file();
+void close_sh_file();

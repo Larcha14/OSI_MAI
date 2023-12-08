@@ -33,7 +33,24 @@ bool writing(char *from, int from_size ,char* to, int to_size){
     for(int i=0; i<from_size; ++i){
         to[i]=from[i];
     }
+    to[from_size]='\0';
     return true;
+}
+
+int writing_clear(char *from, int from_size, char **to){
+    int len=0;
+    for(int i=0; i<from_size;++i){
+        len++;
+        if(from[i]=='\n' || from[i]=='\0'){
+            break;
+        }
+    }
+    char *output=malloc((len+1)*sizeof(char));
+    for(int i=0; i<len; ++i){
+        output[i]=from[i];
+    }
+    *to=output;
+    return len;
 }
 
 int inputing(char **s_output, int fd, int endl_status){

@@ -1,8 +1,6 @@
 #include "m_map.h"
 #include <unistd.h>
 
-// extern struct memory_map_struct;
-
 int write_msg(int pid){
     int shm_fd=shm_open(SHARED_OBJ1_NAME, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     // S_IWUSR - пользователь имеет право записи, S_IRUSR - пользователь имеет право чтения, O_RDWR - открывает файл для чтения и записи одновременноc
@@ -31,17 +29,17 @@ int write_msg(int pid){
         close(shm_fd);
         return -1;
     }
-    msg_ptr->pid=pid;
+    // msg_ptr->pid=pid;
     char *s=NULL;
     int s_len=inputing(&s, STDIN_FILENO, 1);
-    msg_ptr->len=s_len;
+    // msg_ptr->len=s_len;
     if(s_len==-1){
         // char tmp[CAPACITY];
-        writing(s, s_len, msg_ptr->buff, CAPACITY);
+        writing(s, 1, msg_ptr->buff, CAPACITY);
         //write(pipe_1[1], "\n", sizeof("\n"));
         free(s);
         return 1;
-    } else if(s_len>=CAPACITY){
+    } else if(s_len>=CAPACITY-1){
         write(STDOUT_FILENO, "Sorry, so long message. I'm only lerning and can process message are longer then 255 symbols. Try again\n", 105);
     } else{
         writing(s, s_len, msg_ptr->buff, CAPACITY);
@@ -52,7 +50,7 @@ int write_msg(int pid){
     return 0;
 }
 
-int read_msg(int pid, char *output, int s_len){
+int read_msg(int pid, char **input, int s_len){
     int shm_fd=shm_open(SHARED_OBJ1_NAME, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     // S_IWUSR - пользователь имеет право записи, S_IRUSR - пользователь имеет право чтения, O_RDWR - открывает файл для чтения и записи одновременноc
     if(shm_fd==-1){
@@ -81,19 +79,27 @@ int read_msg(int pid, char *output, int s_len){
         return -1;
     }
     if(msg_ptr->buff[0]=='\n'){
-        return 1;
+        return 0;
     }
     if(msg_ptr->buff[0]=='-'){
 
     }
-    writing(msg_ptr->buff, CAPACITY, output, s_len);
+
+    // char *output= malloc(CAPACITY*sizeof(char));
+    // writing(msg_ptr->buff, CAPACITY, output, s_len);
+
+    char *output=NULL;
+    int length=writing_clear(msg_ptr->buff, CAPACITY, &output);
+
+    // write(STDOUT_FILENO, output, sizeof(char)*CAPACITY);
     munmap(msg_ptr, sizeof(message));
     close(shm_fd);
-    return 0;
+    *input=output;
+    return length;
 
 }
 
-int write_error_msg(int pid, int status){
+int write_error_msg(int pid, char status){
     int shm_err_fd=shm_open(SHARED_OBJ2_NAME, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     // S_IWUSR - пользователь имеет право записи, S_IRUSR - пользователь имеет право чтения, O_RDWR - открывает файл для чтения и записи одновременноc
     if(shm_err_fd==-1){
@@ -121,7 +127,7 @@ int write_error_msg(int pid, int status){
         close(shm_err_fd);
         return -1;
     }
-    msg_err_ptr->pid=pid;
+    // msg_err_ptr->pid=pid;
     msg_err_ptr->status=status;
     munmap(msg_err_ptr, sizeof(error_message));
     close(shm_err_fd);
@@ -158,14 +164,20 @@ int read_error_msg(int pid){
         close(shm_err_fd);
         return -1;
     }
-    int status=msg_err_ptr->status;
+    char status=msg_err_ptr->status;
+    int res;
     munmap(msg_err_ptr, sizeof(error_message));
     close(shm_err_fd);
-    return status;
+    if (status=='0'){
+        res=0;
+    } else{
+        res=1; // error in sentence -> output error
+    }
+    return res;
 }
 
 
-bool close_sh_file(){
+void close_sh_file(){
     if(shm_unlink(SHARED_OBJ2_NAME)==-1){
         perror("munmap trouble: ");
         exit(-1);
@@ -175,45 +187,3 @@ bool close_sh_file(){
         exit(-1);
     }
 }
-
-// void memory_mapping_creation(memory_map_struct *mm){
-//     char filename[]=map_name;
-//     mm->fd=shm_open(filename, O_RDWR | O_CREAT , S_IRUSR | S_IWUSR); 
-//     // S_IWUSR - пользователь имеет право записи, S_IRUSR - пользователь имеет право чтения, O_RDWR - открывает файл для чтения и записи одновременноc
-//     if(mm->fd==-1){
-//         perror("Memory map creating error");
-//         exit(-1);
-//     }
-//     mm->size=CAPACITY;
-//     mm->buff=(char*) mmap(NULL, mm->size, PROT_READ | PROT_WRITE, MAP_SHARED, mm->fd, 0);
-
-//     if (mm->buff == MAP_FAILED){
-//         perror("Mmap error");
-//         exit(-1);
-//     }
-//     // printf("%d \n", sb.st_size);
-
-
-
-
-// }
-
-// void memory_mapping_cleaning(memory_map_struct *mm){
-//     if(shm_unlink(map_name)==-1){
-//         perror("hm_error error");
-//         exit(-1);
-//     }
-//     if(munmap(mm->buff, mm->size)==-1){
-//         perror("Munmap error");
-//         exit(-1);
-//     }
-
-// }
-
-// void memory_mapping_open(memory_map_struct ){}
-
-// int main(){
-//     memory_map_struct mm;
-//     memory_mapping_creation(&mm);
-//     memory_mapping_cleaning(&mm);
-// }

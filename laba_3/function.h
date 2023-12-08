@@ -26,6 +26,7 @@ bool clean_name(char **output_name, char* input_name);
 void check_res(int fd_in, int fd_out);
 int inputing(char **s_output, int fd, int endl_status);
 bool writing(char *from, int from_size ,char* to, int to_size);
+int writing_clear(char *from, int from_size, char **to);
 
 
 #endif
