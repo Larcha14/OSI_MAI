@@ -6,18 +6,20 @@ EXT = c
 CC = gcc
 CFLAGS = -std=c99 -pedantic -Wall
 
-# all: linking_realization1 linking_realization2 dynamic
+
 all:  stat_main dynamic
+dynamic_realization1
+# stat_main: stat_main.$(EXT) first_realization.$(EXT) function.h
+# 	$(CC) $(CFLAGS) stat_main.$(EXT) first_realization.$(EXT) -o stat_main $(MATH_FLAG)
 
-# linking_realization2: stat_main dynamic_realization2
-# 	$(CC) $(CFLAGS) stat_main.o -L. -lsecond_realization -o linking_realization2 $(MATH_FLAG)
+# stat_main : stat_main.o dynamic_realization1
+# 		$(COMPILER) $(COMPILER_FLAGS) stat_main.o -L. -lfirst_realization -o stat_main $(MATH_FLAG)
 
+stat_main: stat_main.$(EXT) dynamic_realization1 function.h
+	$(CC) $(CFLAGS) stat_main.$(EXT) -L. ./libfirst_realization.so -o stat_main $(MATH_FLAG)
 
-# linking_realization1: stat_main dynamic_realization1
-# 	$(CC) $(CFLAGS) stat_main.o -L. -lfirst_realization -o linking_realization1 $(MATH_FLAG)
-
-stat_main: stat_main.$(EXT) first_realization.$(EXT) function.h
-	$(CC) $(CFLAGS) stat_main.$(EXT) first_realization.$(EXT) -o stat_main $(MATH_FLAG)
+# stat_main: stat_main.c
+# 	$(CC) $(CFLAGS) -c stat_main.c
 
 dynamic: dyn_main dynamic_realization1 dynamic_realization2
 	$(CC) $(CFLAGS) dyn_main.o -o dynamic $(DYNAMIC_LOADING_FLAG)
