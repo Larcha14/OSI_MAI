@@ -17,6 +17,79 @@ int AWL_tree::cnt(){
     return node_cnt;
 }
 
+int AWL_tree::calHight(node* cur_node){
+    if(cur_node->left_son && cur_node->right_son){
+        if(cur_node->left_son->hight<cur_node->right_son->hight){
+            return cur_node->right_son->hight +1;
+        } else{
+            return cur_node->left_son->hight+1;
+        } 
+    } else if(cur_node->left_son && cur_node->right_son==NULL){
+        return cur_node->left_son->hight +1;
+    } else if(cur_node->right_son && cur_node->left_son==NULL){
+        return cur_node->right_son->hight+1;
+    } else{
+        return 1;
+    }
+}
+
+int AWL_tree::bf(node* cur_node){
+    if(cur_node->left_son && cur_node->right_son){
+        return cur_node->left_son->hight-cur_node->right_son->hight;
+
+    } else if(cur_node->left_son && cur_node->right_son==NULL){
+        return cur_node->left_son->hight;
+    } else if(cur_node->right_son && cur_node->left_son==NULL){
+        return -cur_node->right_son->hight;
+    }
+    return 0;
+}
+
+node* AWL_tree::ll_rot(node* cur_node){
+    node* tmp;
+    node* answ;
+    tmp=cur_node->left_son->right_son;
+    answ=cur_node->left_son;
+    cur_node->left_son=tmp;
+    answ->right_son=cur_node;
+    // cur_node->left_son=tmp;
+
+    return answ;
+}
+
+node* AWL_tree::rr_rot(node* cur_node){
+    node* tmp;
+    node* answ;
+    tmp=cur_node->right_son->left_son;
+    answ=cur_node->right_son;
+    cur_node->right_son=tmp;
+    answ->left_son=cur_node;
+    return answ;
+}
+
+node* AWL_tree::rl_rot(node* cur_node){
+    cur_node->right_son=ll_rot(cur_node->right_son);
+    return rr_rot(cur_node);
+}
+
+node* AWL_tree::lr_rot(node* cur_node){
+    cur_node->left_son=rr_rot(cur_node->left_son);
+    return ll_rot(cur_node);
+}
+
+node* AWL_tree::balancing(node* cur_node){
+    if(bf(cur_node)==2 && bf(cur_node->left_son)==1){
+        return ll_rot(cur_node);
+    } else if(bf(cur_node)==-2 && bf(cur_node->right_son)==-1){
+        return rr_rot(cur_node);
+    } else if(bf(cur_node)==-2 && bf(cur_node->right_son)==1){
+        return rl_rot(cur_node);
+    } else if(bf(cur_node)==2 && bf(cur_node->left_son)==-1){
+        return lr_rot(cur_node);
+    }
+    return cur_node;
+}
+
 node* AWL_tree::find(node* current_node,int ID){
     if(current_node==NULL){
         return NULL;
@@ -37,29 +110,32 @@ bool AWL_tree::is_in_tree(int ID){
     return true;
 }
 
-void AWL_tree::add(node* cur_node, node* new_node, int step){
+node* AWL_tree::add(node* cur_node, node* new_node, int step){
+    node* answ;
     if(new_node->ID>cur_node->ID){
         if(cur_node->right_son==NULL){
             cur_node->right_son=new_node;
-            new_node->level=step+1;
-            return;
+            // new_node->level=step+1;
+            // return;
         } else{
             add(cur_node->right_son, new_node, step+1);
         }
     } else {
         if(cur_node->left_son==NULL){
             cur_node->left_son=new_node;
-            new_node->level=step+1;
-            return;
+            // new_node->level=step+1;
+            // return;
         } else{
             add(cur_node->left_son, new_node, step+1);
         }
     }
+    new_node->hight=calHight(new_node);
+    cur_node->hight=calHight(cur_node);
+    answ= balancing(cur_node);
+    cur_node->hight=calHight(cur_node);
+    return answ;
 }
 
-void AWL_tree::balancing(){
-
-}
 
 bool AWL_tree::insert(int ID){
     if(is_in_tree(ID)){
@@ -71,16 +147,18 @@ bool AWL_tree::insert(int ID){
     new_node->ID=ID;
     if (node_cnt==0){
         root=new_node;
-        root->level=1;
+        root->hight=1;
         depth=1;
     } else{
-        add(root, new_node, 1);
-        if(depth < new_node->level){
-            depth=new_node->level;
-        }
+        new_node->hight=1;
+        root=add(root, new_node, 1);
+        // if(depth < new_node->level){
+        //     depth=new_node->level;
+        // }
     }
 
     node_cnt++;
+    depth=root->hight;
     // balancing();
     return true;
 }
@@ -102,7 +180,7 @@ void AWL_tree::draw_node(node* cur_node, int level){
     for(int i=0; i<level; ++i){
         cout<<"|===";
     }
-    cout<<cur_node->ID<<'\n';
+    cout<<cur_node->ID<<","<<cur_node->hight<<'\n';
     draw_node(cur_node->left_son, level+1);
 
 }
@@ -191,14 +269,15 @@ int main(){
     tree.insert(1);
     tree.insert(10);
     tree.insert(4);
-    tree.change_availability(2, true);
-    tree.bypass(tree.get_root(), data);
-    node* n=tree.get(4);
-    cout<<"hui\n";
+    tree.insert(11);
+    // tree.change_availability(2, true);
+    // tree.bypass(tree.get_root(), data);
+    // node* n=tree.get(4);
+    // cout<<"hui\n";
     tree.draw_tree();
-    cout<<'\n';
-    cout<<tree.parent_id(2);
-    cout<<"\n"<<tree.check_depth();
-    cout<<"hui hui\n";
-    cout<<"Size = "<<data.size()<<" Tree cnt = "<<tree.cnt();
+    // cout<<'\n';
+    // cout<<tree.parent_id(2);
+    // cout<<"\n"<<tree.check_depth();
+    // cout<<"hui hui\n";
+    // cout<<"Size = "<<data.size()<<" Tree cnt = "<<tree.cnt();
 }

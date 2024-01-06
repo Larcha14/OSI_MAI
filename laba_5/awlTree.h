@@ -27,7 +27,7 @@ class AWL_tree{
         int parent_id(int child_id); 
         int cnt();
         void draw_tree();
-        void balancing();
+        node* balancing(node* cur_node);
         bool remove(int ID);
         bool insert(int ID);
         int check_depth();
@@ -36,9 +36,12 @@ class AWL_tree{
 
         ~AWL_tree();
     private:
-        void add(node* cur_node, node* new_node, int step);
+        node* add(node* cur_node, node* new_node, int step);
         void draw_node(node* cur_node, int level);
-        void rot(node* cur_node);
+        node* ll_rot(node* cur_node);
+        node* lr_rot(node* cur_node);
+        node* rr_rot(node* cur_node);
+        node* rl_rot(node* cur_node);
         int bf(node* cur_node);
         int calHight(node* cur_node);
         int find_parent(node* cur_node, int ID);
