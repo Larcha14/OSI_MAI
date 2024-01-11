@@ -260,7 +260,7 @@ AWL_tree::~AWL_tree(){
 
 }
 
-
+/*
 int main(){
     AWL_tree tree;
     vector<int> data;
@@ -281,3 +281,4 @@ int main(){
     // cout<<"hui hui\n";
     // cout<<"Size = "<<data.size()<<" Tree cnt = "<<tree.cnt();
 }
+*/
